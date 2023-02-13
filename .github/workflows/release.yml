@@ -8,6 +8,6 @@ jobs:
   release:
     runs-on: ubuntu-22.04
     steps:
-      - uses: AvadoDServer/ci-release-action@node16
+      - uses: AvadoDServer/ci-release-action@main
         with:
           rpcToken: ${{ secrets.RPC_TOKEN }}

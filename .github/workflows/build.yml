@@ -4,4 +4,4 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - uses: AvadoDServer/ci-build-action@node16
+      - uses: AvadoDServer/ci-build-action@main
