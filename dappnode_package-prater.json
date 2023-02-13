@@ -1,0 +1,37 @@
+{
+  "name": "lighthouse-prater.avado.dnp.dappnode.eth",
+  "version": "0.0.1",
+  "upstream": "v3.4.0",
+  "title": "Lighthouse Goerli/Prater Testnet",
+  "description": "Lighthouse is a Java implementation of the Ethereum Consensus and Validator client",
+  "avatar": "/ipfs/QmNkSDpE6ZspaSamcrnsKnvmR3bbQeWQWTUjcbKwUm4AiT",
+  "type": "service",
+  "autoupdate": true,
+  "image": {
+    "volumes": [
+      "data:/data"
+    ],
+    "ports": [
+      "9003:9003/udp",
+      "9003:9003"
+    ],
+    "environment": [
+      "EXTRA_OPTS_BEACON_NODE=",
+      "EXTRA_OPTS_VALIDATOR_CLIENT="
+    ],
+    "restart": "always"
+  },
+  "author": "heeckhau",
+  "license": "Apache(c)",
+  "dependencies": {},
+  "ui": {
+    "OnboardingWizard": {
+      "url": "http://lighthouse-prater.my.ava.do",
+      "external": true
+    }
+  },
+  "links": {
+    "OnboardingWizard": "http://lighthouse-prater.my.ava.do",
+    "HomePage": "https://lighthouse-book.sigmaprime.io/"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "name": "lighthouse-gnosis.avado.dnp.dappnode.eth",
+  "version": "0.0.1",
+  "upstream": "v3.4.0",
+  "title": "Lighthouse-Gnosis",
+  "description": "Lighthouse is a Java implementation of the Gnosis Beacon Chain.",
+  "avatar": "/ipfs/QmZc3AiweTGtDywdoN2oXcgMgTzz58iGaAyBNQtp8msHHq",
+  "type": "service",
+  "autoupdate": true,
+  "image": {
+    "volumes": [
+      "data:/data"
+    ],
+    "ports": [
+      "9006:9006/udp",
+      "9006:9006"
+    ],
+    "environment": [
+      "EXTRA_OPTS_BEACON_NODE=",
+      "EXTRA_OPTS_VALIDATOR_CLIENT="
+    ],
+    "restart": "always"
+  },
+  "author": "heeckhau",
+  "license": "Apache(c)",
+  "dependencies": {},
+  "ui": {
+    "OnboardingWizard": {
+      "url": "http://lighthouse-gnosis.my.ava.do",
+      "external": true
+    }
+  },
+  "links": {
+    "OnboardingWizard": "http://lighthouse-gnosis.my.ava.do",
+    "HomePage": "https://lighthouse-book.sigmaprime.io/"
+  }
+}

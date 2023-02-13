@@ -1,0 +1,15 @@
+version: '3.4'
+services:
+  lighthouse-prater.avado.dnp.dappnode.eth:
+    image: 'lighthouse-prater.avado.dnp.dappnode.eth:0.0.1'
+    build:
+      context: ./build
+      args:
+        VERSION: v3.4.0
+    volumes:
+      - 'data:/data'
+    environment:
+      - EXTRA_OPTS_BEACON_NODE=
+      - EXTRA_OPTS_VALIDATOR_CLIENT=
+volumes:
+  data: {}
