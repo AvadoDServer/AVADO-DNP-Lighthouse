@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "upstream": "v3.4.0",
   "title": "Lighthouse-Gnosis",
-  "description": "Lighthouse is a Java implementation of the Gnosis Beacon Chain.",
+  "description": "An open-source Ethereum consensus client, written in Rust and maintained by Sigma Prime.",
   "avatar": "/ipfs/QmZc3AiweTGtDywdoN2oXcgMgTzz58iGaAyBNQtp8msHHq",
   "type": "service",
   "autoupdate": true,

@@ -1,9 +1,9 @@
 {
   "name": "lighthouse-prater.avado.dnp.dappnode.eth",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "upstream": "v3.4.0",
   "title": "Lighthouse Goerli/Prater Testnet",
-  "description": "Lighthouse is a Java implementation of the Ethereum Consensus and Validator client",
+  "description": "An open-source Ethereum consensus client, written in Rust and maintained by Sigma Prime.",
   "avatar": "/ipfs/QmNkSDpE6ZspaSamcrnsKnvmR3bbQeWQWTUjcbKwUm4AiT",
   "type": "service",
   "autoupdate": true,

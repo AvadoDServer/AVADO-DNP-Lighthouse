@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "upstream": "v3.4.0",
   "title": "Lighthouse",
-  "description": "Lighthouse is a Java implementation of the Ethereum 2.0 Beacon Chain.",
+  "description": "An open-source Ethereum consensus client, written in Rust and maintained by Sigma Prime.",
   "avatar": "/ipfs/QmRWDGukXyvk4WbJ9dexqE13vSb1jQeTKKFmLnZVq3PT1X",
   "type": "service",
   "autoupdate": true,

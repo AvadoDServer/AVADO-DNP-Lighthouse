@@ -41,8 +41,8 @@ const Comp = () => {
     const settingsPathInContainer = "/data/"
     const settingsFileName = "settings.json"
 
-    const restApiUrl = `http://${packageUrl}:5051`;
-    const keyManagerAPIUrl = `https://${packageUrl}:5052`;
+    const restApiUrl = `http://${packageUrl}:5052`;
+    const keyManagerAPIUrl = `http://${packageUrl}:5062`;
 
     const getTitle = () => {
         switch (NETWORK) {
@@ -115,7 +115,7 @@ const Comp = () => {
             fetchApiToken(dappManagerHelper, settings)
         }
 
-        dappManagerHelper.getFileContentFromContainer(`/data/data-${NETWORK}/validator/key-manager/validator-api-bearer`).then(
+        dappManagerHelper.getFileContentFromContainer(`/data/data-${NETWORK}/validators/api-token.txt`).then(
             (apiToken) => {
                 if (apiToken) {
                     setKeyManagerAPI(new RestApi(keyManagerAPIUrl, apiToken))

@@ -4,7 +4,7 @@ SETTINGSFILE=$1
 #Subcommand: either "bn" (beacon_node) or "vc" (validator_client)
 SUBCOMMAND=$2
 
-echo "Staring Lighthouse ${SUBCOMMAND}"
+echo "Starting Lighthouse ${SUBCOMMAND}"
 
 if [ ! -f "${SETTINGSFILE}" ]; then
     echo "Starting with default settings"
@@ -55,7 +55,7 @@ case ${SUBCOMMAND} in
     --execution-endpoint=${EE_ENDPOINT} \
     --execution-jwt=${JWT_SECRET} \
     --http-address=0.0.0.0 \
-    --http-port=5051 \
+    --http-port=5052 \
     --http-allow-origin="*" \
     --port=${P2P_PORT} \
     ${INITIAL_STATE:+--checkpoint-sync-url="${INITIAL_STATE}"} \
@@ -70,6 +70,12 @@ case ${SUBCOMMAND} in
     --datadir=${DATA_PATH} \
     ${SUBCOMMAND} \
     --network="${NETWORK}" \
+    --beacon-nodes http://localhost:5052 \
+    --http \
+    --http-address=0.0.0.0 \
+    --http-port=5062 \
+    --http-allow-origin="*" \
+    --unencrypted-http-transport \
     ${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT:+--suggested-fee-recipient=${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT}} \
     --graffiti="${GRAFFITI}" \
     ${EXTRA_OPTS_VALIDATOR_CLIENT}
