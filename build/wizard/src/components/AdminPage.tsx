@@ -12,9 +12,9 @@ interface Props {
 const Comp = ({ restApi, dappManagerHelper, supervisorCtl }: Props) => {
 
 
-    const toggleLighthouse = (enable: boolean) => {
+    const toggleNimbus = (enable: boolean) => {
         const method = enable ? 'supervisor.startProcess' : 'supervisor.stopProcess'
-        supervisorCtl?.callMethod(method, ["lighthouse"]);
+        supervisorCtl?.callMethod(method, ["nimbus"]);
     }
     return (
         <>
@@ -35,8 +35,8 @@ const Comp = ({ restApi, dappManagerHelper, supervisorCtl }: Props) => {
                     )}
                 </ul>
                 {supervisorCtl && <div className="field">
-                    <button className="button" onClick={() => toggleLighthouse(true)}>Start Lighthouse</button>
-                    <button className="button" onClick={() => toggleLighthouse(false)}>Stop Lighthouse</button>
+                    <button className="button" onClick={() => toggleNimbus(true)}>Start Nimbus</button>
+                    <button className="button" onClick={() => toggleNimbus(false)}>Stop Nimbus</button>
                 </div>
                 }
 

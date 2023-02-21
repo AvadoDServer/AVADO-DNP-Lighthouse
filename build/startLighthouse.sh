@@ -54,9 +54,7 @@ case ${SUBCOMMAND} in
     --staking \
     --execution-endpoint=${EE_ENDPOINT} \
     --execution-jwt=${JWT_SECRET} \
-    --http-address=0.0.0.0 \
     --http-port=5052 \
-    --http-allow-origin="*" \
     --port=${P2P_PORT} \
     ${INITIAL_STATE:+--checkpoint-sync-url="${INITIAL_STATE}"} \
     ${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT:+--suggested-fee-recipient=${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT}} \
@@ -71,11 +69,7 @@ case ${SUBCOMMAND} in
     ${SUBCOMMAND} \
     --network="${NETWORK}" \
     --beacon-nodes http://localhost:5052 \
-    --http \
-    --http-address=0.0.0.0 \
-    --http-port=5062 \
-    --http-allow-origin="*" \
-    --unencrypted-http-transport \
+    --http
     ${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT:+--suggested-fee-recipient=${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT}} \
     --graffiti="${GRAFFITI}" \
     ${EXTRA_OPTS_VALIDATOR_CLIENT}
