@@ -69,7 +69,7 @@ case ${SUBCOMMAND} in
     ${SUBCOMMAND} \
     --network="${NETWORK}" \
     --beacon-nodes http://localhost:5052 \
-    --http
+    --http \
     ${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT:+--suggested-fee-recipient=${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT}} \
     --graffiti="${GRAFFITI}" \
     ${EXTRA_OPTS_VALIDATOR_CLIENT}

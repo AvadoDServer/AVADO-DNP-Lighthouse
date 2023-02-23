@@ -1,9 +1,9 @@
 import * as restify from "restify";
 import corsMiddleware from "restify-cors-middleware2"
-import axios, { Method } from "axios";
+import axios, { Method, AxiosRequestHeaders } from "axios";
 import * as fs from 'fs';
 
-import {server_config} from "./server_config";
+import { server_config } from "./server_config";
 import defaultsettings from "./settings/defaultsettings.json";
 
 console.log("Monitor starting...");
@@ -46,7 +46,7 @@ server.get("/name", (req: restify.Request, res: restify.Response, next: restify.
 server.get("/settings", (req: restify.Request, res: restify.Response, next: restify.Next) => {
     try {
         const settings = JSON.parse(fs.readFileSync(settings_file_path, 'utf8'))
-        res.send(200, settings ? JSON.stringify(settings) : defaultsettings );
+        res.send(200, settings ? JSON.stringify(settings) : defaultsettings);
         next()
     } catch (err) {
         res.send(200, defaultsettings);
@@ -55,10 +55,10 @@ server.get("/settings", (req: restify.Request, res: restify.Response, next: rest
 });
 
 server.post("/settings", (req: restify.Request, res: restify.Response, next: restify.Next) => {
-        const settings = JSON.stringify(req.body, null, 4);
-        fs.writeFileSync(settings_file_path, settings, 'utf8');
-        res.send(200, `Saved settings`);
-        return next();
+    const settings = JSON.stringify(req.body, null, 4);
+    fs.writeFileSync(settings_file_path, settings, 'utf8');
+    res.send(200, `Saved settings`);
+    return next();
 });
 
 server.get("/defaultsettings", (req: restify.Request, res: restify.Response, next: restify.Next) => {
@@ -70,6 +70,27 @@ server.get("/defaultsettings", (req: restify.Request, res: restify.Response, nex
         next();
     }
 });
+
+
+server.get("/service/stop", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    try {
+        //TODO call supervisorctl stop
+        const method =  'supervisor.stopProcess'
+        //supervisorCtl?.callMethod(method, ["lighthouse-bn"]);
+        //supervisorCtl?.callMethod(method, ["lighthouse-vc"]);
+
+        res.send(200, defaultsettings);
+        next()
+    } catch (err) {
+        res.send(200, "failed")
+        next();
+    }
+});
+
+
+////////////////////////
+// Checkpoint API    ///
+////////////////////////
 
 // checkpoints APIs
 server.get("/:name/checkpointz/v1/beacon/slots/:slot", (req: restify.Request, res: restify.Response, next: restify.Next) => {
@@ -97,81 +118,86 @@ server.get("/beacon.gnosischain.com/api/v1/block/:slot", (req: restify.Request, 
 });
 
 const get = (url: string, res: restify.Response, next: restify.Next) => {
-    axios.get(url,
-        {
-            headers: {
-                // 'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json',
-            },
-        }).then(
-            (response: any) => {
-                // console.dir(response.data.data)
-                res.send(response.status, response.data.data)
-                next();
-            }
-        ).catch(
-            (error: any) => {
-                console.log("Error contacting ", url, error);
-                res.send(500, "failed")
-                next();
-            }
-        )
+    axios.get(url, {
+        headers: { 'Content-Type': 'application/json' },
+    }).then(
+        (response: any) => {
+            // console.dir(response.data.data)
+            res.send(response.status, response.data.data)
+            next();
+        }
+    ).catch(
+        (error: any) => {
+            console.log("Error contacting ", url, error);
+            res.send(500, "failed")
+            next();
+        }
+    )
 }
+
+/////////////////////////////
+// Beacon chain rest API   //
+/////////////////////////////
 
 server.get('/rest/*', (req: restify.Request, res: restify.Response, next: restify.Next) => {
     const path = req.params["*"]
     const url = `${server_config.rest_url}/${path}`
-
-    axios.request({
-        method: req.method as Method,
-        url: url,
-        data: req.body,
-        headers: {
-            'Content-Type': 'application/json'
-        },
-    }).then((response: any) => {
-        res.send(response.status, response.data)
-        next();
-    }).catch((error: any) => {
-        console.log("Error contacting ", url, error);
-        res.send(500, "failed")
-        next();
-    });
+    const headers = {
+        'Content-Type': 'application/json'
+    }
+    axiosRequest(
+        url,
+        headers,
+        req,
+        res,
+        next
+    )
 });
 
+/////////////////////////////
+// Key manager API         //
+/////////////////////////////
+
 server.get('/keymanager/*', (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    const path = req.params["*"]
-    const url = `${server_config.keymanager_url}/${path}`
-    processKeyMangerRequest(url, req, res, next); 1
+    processKeyMangerRequest(req, res, next);
 });
 
 
 server.post('/keymanager/*', (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    const path = req.params["*"]
-    const url = `${server_config.keymanager_url}/${path}`
-    processKeyMangerRequest(url, req, res, next);
+    processKeyMangerRequest(req, res, next);
 });
 
 server.del('/keymanager/*', (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    const path = req.params["*"]
-    const url = `${server_config.keymanager_url}/${path}`
-    processKeyMangerRequest(url, req, res, next);
+    processKeyMangerRequest(req, res, next);
 });
 
-const processKeyMangerRequest = (url: string, req: restify.Request, res: restify.Response, next: restify.Next) => {
+const processKeyMangerRequest = (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    const path = req.params["*"]
+    const url = `${server_config.keymanager_url}/${path}`
     const keymanagertoken = getKeyManagerToken();
+    const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${keymanagertoken}`
+    }
+
     // console.log(req.body, url, keymanagertoken);
+    axiosRequest(
+        url,
+        headers,
+        req,
+        res,
+        next
+    )
+}
+
+const axiosRequest = (url: string, headers: AxiosRequestHeaders, req: restify.Request, res: restify.Response, next: restify.Next) => {
     axios.request({
         method: req.method as Method,
         url: url,
         data: req.body,
-        headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${keymanagertoken}`
-        },
+        headers: headers,
     }).then((response: any) => {
-        const data = response.data
-        res.send(response.status, data)
+        res.send(response.status, response.data)
         next();
     }).catch((error: any) => {
         console.log("Error contacting ", url, error);

@@ -14,7 +14,7 @@ const Comp = ({ restApi, dappManagerHelper, supervisorCtl }: Props) => {
 
     const toggleNimbus = (enable: boolean) => {
         const method = enable ? 'supervisor.startProcess' : 'supervisor.stopProcess'
-        supervisorCtl?.callMethod(method, ["nimbus"]);
+        supervisorCtl?.callMethod(method, ["nimbus"]); // FIXME: nimbus?
     }
     return (
         <>

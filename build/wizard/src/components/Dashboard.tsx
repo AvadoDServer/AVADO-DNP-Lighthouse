@@ -9,7 +9,6 @@ import AdminPage from "./AdminPage";
 import NavigationBar from "./shared/NavigationBar";
 import Welcome from "./shared/Welcome";
 
-import logo from "../assets/nimbus.png";
 import { SettingsType } from "./shared/Types";
 import { RestApi } from "./shared/RestApi";
 import { SupervisorCtl } from "./shared/SupervisorCtl";
@@ -38,10 +37,6 @@ const Comp = () => {
     const [api, setApi] = React.useState<RestApi | null>();
     const [restApi, setRestApi] = React.useState<RestApi | null>();
     const [keyManagerAPI, setKeyManagerAPI] = React.useState<RestApi|null>();
-
-
-    const settingsPathInContainer = "/data/"
-    const settingsFileName = "settings.json"
 
     const apiUrl = `http://${packageUrl}:9999`;
     const restApiUrl = `${apiUrl}/rest`;
@@ -77,7 +72,7 @@ const Comp = () => {
                 //ERROR TODO
             });
         }
-    }, [restApi, supervisorCtl])
+    }, [api, supervisorCtl])
 
     React.useEffect(() => {
         console.log("get default settings")
@@ -165,7 +160,7 @@ const Comp = () => {
             <section className="has-text-black">
                 <div className="columns is-mobile">
                     <div className="column">
-                        <Header restApi={restApi} logo={logo} title={getTitle()} tagline={`${capitalizeFirstLetter(server_config.name)} beacon chain and validator`} wikilink={getWikilink()} />
+                        <Header restApi={restApi} title={getTitle()} tagline={`${capitalizeFirstLetter(server_config.name)} beacon chain and validator`} wikilink={getWikilink()} />
 
                         <NavigationBar />
 
@@ -174,7 +169,7 @@ const Comp = () => {
 
                         <Routes>
                             {restApi && (<Route path="/" element={<MainPage settings={settings} restApi={restApi} keyManagerAPI={keyManagerAPI} dappManagerHelper={dappManagerHelper} />} />)}
-                            {dappManagerHelper && <Route path="/welcome" element={<Welcome logo={logo} title={getTitle()} dappManagerHelper={dappManagerHelper} />} />}
+                            {dappManagerHelper && <Route path="/welcome" element={<Welcome title={getTitle()} dappManagerHelper={dappManagerHelper} />} />}
                             <Route path="/settings" element={<SettingsForm name={capitalizeFirstLetter(server_config.name)} settings={settings} defaultSettings={defaultSettings} applySettingsChanges={applySettingsChanges} installedPackages={packages} isAdminMode={isAdminMode} />} />
                             <Route path="/checksync" element={<CheckCheckPointSync restApi={restApi} network={server_config.network} packageUrl={packageUrl} />} />
                             {dappManagerHelper && <Route path="/admin" element={<AdminPage supervisorCtl={supervisorCtl} restApi={restApi} dappManagerHelper={dappManagerHelper} />} />}
