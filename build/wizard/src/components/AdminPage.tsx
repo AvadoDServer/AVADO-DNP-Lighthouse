@@ -1,15 +1,13 @@
 import { RestApi } from "./shared/RestApi";
 import { DappManagerHelper } from "./shared/DappManagerHelper";
-import { SupervisorCtl } from "./shared/SupervisorCtl";
 import Logs from "./shared/Logs";
 
 interface Props {
     restApi: RestApi | undefined | null
     dappManagerHelper: DappManagerHelper
-    supervisorCtl: SupervisorCtl | undefined
 }
 
-const Comp = ({ restApi, dappManagerHelper, supervisorCtl }: Props) => {
+const Comp = ({ restApi, dappManagerHelper }: Props) => {
 
 
     const toggleNimbus = (enable: boolean) => {

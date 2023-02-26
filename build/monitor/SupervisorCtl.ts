@@ -29,7 +29,7 @@ export class SupervisorCtl {
     }
 
     callMethod(method: Method, params: any[]) {
-        this.client.methodCall(method, params, (error: any, value) => {
+        this.client.methodCall(method, params, (error: any, value:any) => {
             if (error) {
                 console.log('supervisorCtl error:', error, `(${this.host},${this.port},${this.path})`);
                 console.log('req headers:', error.req && error.req._header);

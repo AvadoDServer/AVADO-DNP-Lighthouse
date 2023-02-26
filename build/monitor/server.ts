@@ -2,7 +2,7 @@ import * as restify from "restify";
 import corsMiddleware from "restify-cors-middleware2"
 import axios, { Method, AxiosRequestHeaders } from "axios";
 import * as fs from 'fs';
-
+import { SupervisorCtl } from "./SupervisorCtl";
 import { server_config } from "./server_config";
 import defaultsettings from "./settings/defaultsettings.json";
 
@@ -71,14 +71,25 @@ server.get("/defaultsettings", (req: restify.Request, res: restify.Response, nex
     }
 });
 
+const supervisorCtl = new SupervisorCtl(`localhost`, 5555, '/RPC2')
 
-server.get("/service/stop", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+server.post("/service/restart", (req: restify.Request, res: restify.Response, next: restify.Next) => {
     try {
-        //TODO call supervisorctl stop
-        const method =  'supervisor.stopProcess'
-        //supervisorCtl?.callMethod(method, ["lighthouse-bn"]);
-        //supervisorCtl?.callMethod(method, ["lighthouse-vc"]);
+        const method =  'supervisor.restart'
+        supervisorCtl.callMethod(method, []);
+        res.send(200, "restarted");
+        next()
+    } catch (err) {
+        res.send(500, "failed")
+        next();
+    }
+});
 
+server.post("/service/stop", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    try {
+        const method =  'supervisor.stopProcess'
+        supervisorCtl.callMethod(method, ["lighthouse-bn"]);
+        supervisorCtl.callMethod(method, ["lighthouse-vc"]);
         res.send(200, defaultsettings);
         next()
     } catch (err) {
@@ -190,7 +201,7 @@ const processKeyMangerRequest = (req: restify.Request, res: restify.Response, ne
     )
 }
 
-const axiosRequest = (url: string, headers: AxiosRequestHeaders, req: restify.Request, res: restify.Response, next: restify.Next) => {
+const axiosRequest = (url: string, headers: object, req: restify.Request, res: restify.Response, next: restify.Next) => {
     axios.request({
         method: req.method as Method,
         url: url,
@@ -216,4 +227,5 @@ const getKeyManagerToken = () => {
 
 server.listen(9999, function () {
     console.log("%s listening at %s", server.name, server.url);
+    supervisorCtl.callMethod("supervisor.getState", [])
 });
