@@ -1,5 +1,5 @@
 import xmlrpclib
-server = xmlrpclib.Server('http://lighthouse.my.ava.do:5556/RPC2')
+server = xmlrpclib.Server('http://localhost:5555/RPC2')
 # server.login("username","password")
 
 # print(server.supervisor.getState())
@@ -9,5 +9,5 @@ print(server.system.listMethods())
 print(server.supervisor.getState())
 print(server.system.listMethods())
 print(server.supervisor.getAllProcessInfo())
-# print(server.supervisor.stopProcess("lighthouse"))
-print(server.supervisor.startProcess("lighthouse"))
+# print(server.supervisor.stopProcess("lighthouse-bn"))
+print(server.supervisor.startProcess("lighthouse-bn"))

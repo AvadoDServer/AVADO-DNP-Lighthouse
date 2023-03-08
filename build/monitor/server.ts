@@ -76,7 +76,8 @@ const supervisorCtl = new SupervisorCtl(`localhost`, 5555, '/RPC2')
 server.post("/service/restart", (req: restify.Request, res: restify.Response, next: restify.Next) => {
     try {
         const method =  'supervisor.restart'
-        supervisorCtl.callMethod(method, []);
+        supervisorCtl.callMethod(method, ["lighthouse-bn"]);
+        supervisorCtl.callMethod(method, ["lighthouse-vc"]);
         res.send(200, "restarted");
         next()
     } catch (err) {
@@ -90,7 +91,20 @@ server.post("/service/stop", (req: restify.Request, res: restify.Response, next:
         const method =  'supervisor.stopProcess'
         supervisorCtl.callMethod(method, ["lighthouse-bn"]);
         supervisorCtl.callMethod(method, ["lighthouse-vc"]);
-        res.send(200, defaultsettings);
+        res.send(200, "stopped");
+        next()
+    } catch (err) {
+        res.send(200, "failed")
+        next();
+    }
+});
+
+server.post("/service/start", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    try {
+        const method =  'supervisor.startProcess'
+        supervisorCtl.callMethod(method, ["lighthouse-bn"]);
+        supervisorCtl.callMethod(method, ["lighthouse-vc"]);
+        res.send(200, "started");
         next()
     } catch (err) {
         res.send(200, "failed")
