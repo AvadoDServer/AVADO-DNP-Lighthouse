@@ -57,8 +57,10 @@ server.get("/settings", (req: restify.Request, res: restify.Response, next: rest
 server.post("/settings", (req: restify.Request, res: restify.Response, next: restify.Next) => {
     const settings = JSON.stringify(req.body, null, 4);
     fs.writeFileSync(settings_file_path, settings, 'utf8');
-    res.send(200, `Saved settings`);
-    return next();
+    restart().then((result) => {
+        res.send(200, `Saved settings and restarted`);
+        return next();
+    })
 });
 
 server.get("/defaultsettings", (req: restify.Request, res: restify.Response, next: restify.Next) => {
@@ -66,52 +68,74 @@ server.get("/defaultsettings", (req: restify.Request, res: restify.Response, nex
         res.send(200, defaultsettings);
         next()
     } catch (err) {
-        res.send(200, "failed")
-        next();
-    }
-});
-
-const supervisorCtl = new SupervisorCtl(`localhost`, 5555, '/RPC2')
-
-server.post("/service/restart", (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    try {
-        const method =  'supervisor.restart'
-        supervisorCtl.callMethod(method, ["lighthouse-bn"]);
-        supervisorCtl.callMethod(method, ["lighthouse-vc"]);
-        res.send(200, "restarted");
-        next()
-    } catch (err) {
         res.send(500, "failed")
         next();
     }
 });
 
+const supervisorCtl = new SupervisorCtl(`localhost`, 5555, '/RPC2')
+const emptyCallBack = (error: Object, value: any) => { };
+
+const restart = async () => {
+    await Promise.all([
+        supervisorCtl.callMethod('supervisor.stopProcess', ["lighthouse-vc", true]),
+        supervisorCtl.callMethod('supervisor.stopProcess', ["lighthouse-bn", true])
+    ])
+    return Promise.all([
+        supervisorCtl.callMethod('supervisor.startProcess', ["lighthouse-bn", true]),
+        supervisorCtl.callMethod('supervisor.startProcess', ["lighthouse-vc", true])
+    ])
+}
+
+server.post("/service/restart", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    restart().then((result) => {
+        res.send(200, "restarted");
+        return next()
+    }).catch((error) => {
+        res.send(500, "failed")
+        return next();
+    })
+});
+
 server.post("/service/stop", (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    try {
-        const method =  'supervisor.stopProcess'
-        supervisorCtl.callMethod(method, ["lighthouse-bn"]);
-        supervisorCtl.callMethod(method, ["lighthouse-vc"]);
+    const method = 'supervisor.stopProcess'
+    Promise.all([
+        supervisorCtl.callMethod(method, ["lighthouse-bn"]),
+        supervisorCtl.callMethod(method, ["lighthouse-vc"])
+    ]).then(result => {
         res.send(200, "stopped");
         next()
-    } catch (err) {
+    }).catch(err => {
         res.send(200, "failed")
         next();
-    }
+    })
 });
 
 server.post("/service/start", (req: restify.Request, res: restify.Response, next: restify.Next) => {
-    try {
-        const method =  'supervisor.startProcess'
-        supervisorCtl.callMethod(method, ["lighthouse-bn"]);
-        supervisorCtl.callMethod(method, ["lighthouse-vc"]);
+    const method = 'supervisor.startProcess'
+    Promise.all([
+        supervisorCtl.callMethod(method, ["lighthouse-bn"]),
+        supervisorCtl.callMethod(method, ["lighthouse-vc"])
+    ]).then(result => {
         res.send(200, "started");
         next()
-    } catch (err) {
+    }).catch(err => {
         res.send(200, "failed")
         next();
-    }
+    })
 });
 
+server.get("/service/status", (req: restify.Request, res: restify.Response, next: restify.Next) => {
+    const method = 'supervisor.getAllProcessInfo'
+    supervisorCtl.callMethod(method, [])
+        .then((value: any) => {
+            res.send(200, value);
+            next()
+        }).catch((_error: any) => {
+            res.send(500, "failed")
+            next();
+        });
+});
 
 ////////////////////////
 // Checkpoint API    ///
@@ -225,7 +249,7 @@ const axiosRequest = (url: string, headers: object, req: restify.Request, res: r
         res.send(response.status, response.data)
         next();
     }).catch((error: any) => {
-        console.log("Error contacting ", url, error);
+        console.log("Error contacting ", url, error.cause);
         res.send(500, "failed")
         next();
     });
@@ -241,5 +265,7 @@ const getKeyManagerToken = () => {
 
 server.listen(9999, function () {
     console.log("%s listening at %s", server.name, server.url);
-    supervisorCtl.callMethod("supervisor.getState", [])
+    supervisorCtl.callMethod("supervisor.getState", []).then((value: any) => {
+        console.log("supervisor", value.statename)
+    })
 });

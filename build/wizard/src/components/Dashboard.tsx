@@ -21,7 +21,7 @@ import server_config from "../server_config.json";
 
 export const packagePrefix = server_config.network === "mainnet" ? server_config.name : `${server_config.name}-${server_config.network}`;
 export const packageName = `${packagePrefix}.avado.dnp.dappnode.eth`;
-export const packageUrl = `${packagePrefix}.my.ava.do`;
+export const packageUrl = true ? `${packagePrefix}.my.ava.do` : `localhost`;
 
 
 const Comp = () => {
@@ -64,13 +64,9 @@ const Comp = () => {
         setSettings(newSettings)
         if (api) {
             api.post("/settings", newSettings, (res) => {
-                api.post("service/restart", {}, (res) => {
-                    // TODO ?
-                }, (err) => {
-                    //ERROR TODO
-                })
+                console.log("Settings saved")
             }, (err) => {
-                //ERROR TODO
+                console.error("Settings not saved", err)
             });
         }
     }, [api])
@@ -165,7 +161,7 @@ const Comp = () => {
                             {dappManagerHelper && <Route path="/welcome" element={<Welcome title={getTitle()} dappManagerHelper={dappManagerHelper} />} />}
                             <Route path="/settings" element={<SettingsForm name={capitalizeFirstLetter(server_config.name)} settings={settings} defaultSettings={defaultSettings} applySettingsChanges={applySettingsChanges} installedPackages={packages} isAdminMode={isAdminMode} />} />
                             <Route path="/checksync" element={<CheckCheckPointSync restApi={restApi} network={server_config.network} packageUrl={packageUrl} />} />
-                            {dappManagerHelper && <Route path="/admin" element={<AdminPage restApi={restApi} dappManagerHelper={dappManagerHelper} />} />}
+                            {dappManagerHelper && <Route path="/admin" element={<AdminPage restApi={api} dappManagerHelper={dappManagerHelper} />} />}
                         </Routes>
 
                     </div>

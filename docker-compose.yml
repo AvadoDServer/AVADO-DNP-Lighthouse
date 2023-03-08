@@ -8,6 +8,10 @@ services:
         VERSION: v3.4.0
     volumes:
       - 'data:/data'
+    ports:
+      - '9003:9003'
+      - '9003:9003/udp'
+      - '9999:9999'
     environment:
       - EXTRA_OPTS_BEACON_NODE=
       - EXTRA_OPTS_VALIDATOR_CLIENT=
