@@ -63,7 +63,7 @@ const Comp = () => {
     const applySettingsChanges = useCallback((newSettings: any) => {
         setSettings(newSettings)
         if (api) {
-            api.post("/settings", {settings: newSettings}, (res) => {
+            api.post("/settings", newSettings, (res) => {
                 api.post("service/restart", {}, (res) => {
                     // TODO ?
                 }, (err) => {

@@ -10,9 +10,8 @@ interface Props {
 const Comp = ({ restApi, dappManagerHelper }: Props) => {
 
 
-    const toggleNimbus = (enable: boolean) => {
-        const method = enable ? 'supervisor.startProcess' : 'supervisor.stopProcess'
-        supervisorCtl?.callMethod(method, ["nimbus"]); // FIXME: nimbus?
+    const toggleNimbus = async (enable: boolean) => {
+        restApi?.post("/service/restart", {}, (res) => { }, (err) => { })
     }
     return (
         <>
@@ -32,10 +31,11 @@ const Comp = ({ restApi, dappManagerHelper }: Props) => {
                         </li>
                     )}
                 </ul>
-                {supervisorCtl && <div className="field">
-                    <button className="button" onClick={() => toggleNimbus(true)}>Start Nimbus</button>
-                    <button className="button" onClick={() => toggleNimbus(false)}>Stop Nimbus</button>
-                </div>
+                {
+                    <div className="field">
+                        <button className="button" onClick={() => toggleNimbus(true)}>Start Nimbus</button>
+                        <button className="button" onClick={() => toggleNimbus(false)}>Stop Nimbus</button>
+                    </div>
                 }
 
                 {dappManagerHelper && (<Logs dappManagerHelper={dappManagerHelper} />)}
