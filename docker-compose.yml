@@ -1,11 +1,11 @@
 version: '3.4'
 services:
   lighthouse-prater.avado.dnp.dappnode.eth:
-    image: 'lighthouse-prater.avado.dnp.dappnode.eth:0.0.3'
+    image: 'lighthouse-prater.avado.dnp.dappnode.eth:0.0.4'
     build:
       context: ./build
       args:
-        VERSION: v3.4.0
+        VERSION: v3.5.1
     volumes:
       - 'data:/data'
     ports:
