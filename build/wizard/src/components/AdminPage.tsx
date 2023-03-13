@@ -2,6 +2,7 @@ import { RestApi } from "./shared/RestApi";
 import { DappManagerHelper } from "./shared/DappManagerHelper";
 import Logs from "./shared/Logs";
 import { useEffect, useState } from "react";
+import ComplexToolbarLogViewer from "./shared/ComplexToolbarLogViewer";
 
 interface Props {
     restApi: RestApi | undefined | null
@@ -66,6 +67,7 @@ const Comp = ({ restApi, dappManagerHelper }: Props) => {
                 }
 
                 {dappManagerHelper && (<Logs dappManagerHelper={dappManagerHelper} />)}
+                {/* {dappManagerHelper && (<ComplexToolbarLogViewer dappManagerHelper={dappManagerHelper} />)} */}
             </div>
 
         </>

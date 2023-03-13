@@ -263,6 +263,14 @@ const getKeyManagerToken = () => {
     }
 }
 
+server.get('/logs/beacon/*',
+    restify.plugins.serveStaticFiles('/data/data-prater/beacon/logs')
+);
+
+server.get('/logs/validators/*',
+    restify.plugins.serveStaticFiles('/data/data-prater/validators/logs')
+);
+
 server.listen(9999, function () {
     console.log("%s listening at %s", server.name, server.url);
     supervisorCtl.callMethod("supervisor.getState", []).then((value: any) => {

@@ -9,6 +9,7 @@ services:
     volumes:
       - 'data:/data'
     ports:
+      - 80:80
       - '9003:9003'
       - '9003:9003/udp'
       - '9999:9999'
