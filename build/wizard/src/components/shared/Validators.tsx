@@ -1,6 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSatelliteDish, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faSatelliteDish, faTrash, faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import AddValidator from "./AddValidator";
@@ -8,18 +8,16 @@ import { Network, SettingsType } from "./Types";
 import OverrideVallidatorFeeRecipientModal from "./OverrideVallidatorFeeRecipientModal";
 import { RestApi } from "./RestApi";
 import { useNavigate } from "react-router-dom";
-import thereIsNothingHereYet from "../../assets/there-is-nothing-here-yet.jpeg";
-import { DappManagerHelper } from "./DappManagerHelper";
+import ExitValidatorModal from "./ExitValidatorModal";
+import RocketPoolLink from "./RocketPoolLink";
 
 interface Props {
     settings: SettingsType | undefined
-    restAPI: RestApi
-    keyManagerAPI: RestApi
-    dappManagerHelper: DappManagerHelper | null
+    api: RestApi
     readonly?: boolean
 }
 
-interface ValidatorData {
+export interface ValidatorData {
     "index": string
     "balance": string,
     "status": string,
@@ -45,16 +43,19 @@ export const abbreviatePublicKey = (key: string) => <abbr title={key}>{key?.subs
 export const createBeaconchainUrl = (network: Network | null | undefined, validatorPubkey: string, text?: any) => {
     const beaconChainBaseUrl = ({
         "prater": "https://prater.beaconcha.in",
+        "holesky": "https://holesky.beaconcha.in",
         "mainnet": "https://beaconcha.in",
-        "gnosis": "https://beacon.gnosischain.com"
+        "gnosis": "https://gnosischa.in"
     })[network ?? "mainnet"]
     return <a href={beaconChainBaseUrl + validatorPubkey} target="_blank" rel="noopener noreferrer">{text ? text : validatorPubkey}</a>;
 }
 
-const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, readonly = false }: Props) => {
+const Validators = ({ settings, api, readonly = false }: Props) => {
     const [validatorData, setValidatorData] = React.useState<ValidatorData[]>();
     const [validators, setValidators] = React.useState<string[]>();
-    const [feeRecipients, setFeeRecipients] = React.useState<string[]>();
+
+    type feeRecipientType = { pubKey: string, recipient: string }
+    const [feeRecipients, setFeeRecipients] = React.useState<feeRecipientType[]>();
 
     const [configuringfeeRecipient, setConfiguringfeeRecipient] = React.useState<ConfiguringfeeRecipient | null>();
 
@@ -65,8 +66,8 @@ const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, reado
     }
 
     const updateValidators = React.useCallback(async () => {
-        console.log("Trying to update validators")
-        keyManagerAPI.get("/eth/v1/keystores",
+        console.log("Fetch validator information from keymanager")
+        api.get("/keymanager/eth/v1/keystores",
             (res) => {
                 if (res.status === 200) {
                     // console.log(res.data)
@@ -77,33 +78,39 @@ const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, reado
             }, (e) => {
                 console.log("error updating validators", e)
             });
-    }, [keyManagerAPI])
+    }, [api])
 
     React.useEffect(() => {
         updateValidators();
-    }, [keyManagerAPI, settings, updateValidators])
+        const interval = setInterval(() => {
+            updateValidators();
+        }, 60 * 1000); // refresh every minute
+        return () => clearInterval(interval);
+    }, [api, settings, updateValidators])
 
     React.useEffect(() => {
-        const getFeeRecipient = async (pubKey: string) => {
+        const fetchFeeRecipient = async (pubKey: string) => {
+            const result = (recipient: string) => ({ pubKey: pubKey, recipient: recipient })
+
             if (!settings?.validators_proposer_default_fee_recipient) {
-                return "Configure default setting first!"
+                return result("Configure default setting first!")
             }
 
-            return keyManagerAPI.get<string>(`/eth/v1/validator/${pubKey}/feerecipient`,
+            return api.get(`/keymanager/eth/v1/validator/${pubKey}/feerecipient`,
                 (res) => {
                     if (res.status === 200) {
                         // console.log(res)
                         const address = res.data.data.ethaddress;
                         if (address && address !== "0x0000000000000000000000000000000000000000")
-                            return address
+                            return result(address)
                         else
-                            return settings?.validators_proposer_default_fee_recipient
+                            return result(settings?.validators_proposer_default_fee_recipient)
                     } else {
-                        return settings?.validators_proposer_default_fee_recipient
+                        return result(settings?.validators_proposer_default_fee_recipient)
                     }
                 }, (err) => {
                     console.log("Error in validators_proposer_default_fee_recipient", err)
-                    return settings?.validators_proposer_default_fee_recipient
+                    return result(settings?.validators_proposer_default_fee_recipient)
                 });
         }
 
@@ -123,10 +130,10 @@ const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, reado
                     "withdrawable_epoch": "0"
                 }
             };
-            return await restAPI.get(`/eth/v1/beacon/states/finalized/validators/${pubKey}`, res => {
+            return await api.get(`/rest/eth/v1/beacon/states/head/validators/${pubKey}`, res => {
                 // console.dir(res);
-                if (res.status === 200 && res.data != "failed" ) {
-                    console.log(res.data.data)
+                if (res.status === 200 && res.data !== "failed") {
+                    // console.log(res.data.data)
                     return (res.data.data as ValidatorData);
                 } else
                     return nullValue
@@ -137,9 +144,11 @@ const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, reado
 
         if (validators) {
             Promise.all(validators.map(pubKey => getValidatorData(pubKey))).then(result => setValidatorData(result))
-            Promise.all(validators.map(pubKey => getFeeRecipient(pubKey))).then(result => setFeeRecipients(result))
+            Promise.all(validators.map(pubKey => fetchFeeRecipient(pubKey))).then(result => setFeeRecipients(result))
         }
-    }, [validators, settings?.validators_proposer_default_fee_recipient, keyManagerAPI, restAPI]);
+    }, [validators, settings?.validators_proposer_default_fee_recipient, api]);
+
+    // console.log(feeRecipients)
 
     function askConfirmationRemoveValidator(pubKey: string) {
         confirmAlert({
@@ -169,9 +178,9 @@ const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, reado
     const removeValidator = (pubKey: string) => {
         console.log("Deleting " + pubKey);
         //https://ethereum.github.io/keymanager-APIs/#/Local%20Key%20Manager/DeleteKeys
-        keyManagerAPI.delete("/eth/v1/keystores", { pubkeys: [pubKey] }, (res) => {
-            console.dir(res)
-            console.log(res)
+        api.delete("/keymanager/eth/v1/keystores", { pubkeys: [pubKey] }, (res) => {
+            // console.dir(res)
+            console.log("Slashing protection data", res)
             downloadSlashingData(res.data.slashing_protection)
             if (res.status === 200) {
                 updateValidators();
@@ -206,6 +215,21 @@ const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, reado
         }
     }
 
+    const withdrawalTag = (validator: ValidatorData) => {
+        const ready = validator.validator.withdrawal_credentials.startsWith("0x01")
+        const message = () => {
+            if (ready)
+                return "enabled"
+            if (!ready)
+                return "todo"
+        }
+        return <span className={"tag " + (ready ? "is-success" : "is-warning")}>{message()}</span>
+    }
+
+    const canExit = (validator: ValidatorData) => validator.status === "active_ongoing"
+
+    const getFeeRecipient = (feeRecipients: feeRecipientType[], pubkey: string) => feeRecipients.find(x => (x.pubKey === pubkey))?.recipient ?? "todo"
+
     return (
         <div>
             <div className="container has-text-centered ">
@@ -229,12 +253,12 @@ const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, reado
                                 </div>
                             </>
                         )}
-                        {validators && validatorData && feeRecipients && validators.length > 0 && (
+                        {validators && validatorData && feeRecipients && validators.length > 0 && settings && (
                             <>
                                 <OverrideVallidatorFeeRecipientModal
                                     network={settings?.network ?? "mainnet"}
                                     updateValidators={updateValidators}
-                                    keyManagerAPI={keyManagerAPI}
+                                    api={api}
                                     validators_proposer_default_fee_recipient={settings?.validators_proposer_default_fee_recipient}
                                     configuringfeeRecipient={configuringfeeRecipient}
                                     setConfiguringfeeRecipient={setConfiguringfeeRecipient}
@@ -246,42 +270,55 @@ const Validators = ({ settings, restAPI, keyManagerAPI, dappManagerHelper, reado
                                     <thead>
                                         <tr>
                                             <th></th>
-                                            <th>Public key</th>
                                             <th>Index</th>
+                                            <th>Public key</th>
                                             <th>Balance</th>
                                             <th>Effective Balance</th>
                                             {/* <th>Activation Epoch</th> */}
                                             {/* <th>Exit Epoch</th> */}
                                             <th>Fee recipient</th>
+                                            <th>Withdrawals</th>
                                             <th>Status</th>
                                             {!readonly && (<th>Actions</th>)}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {validatorData.map((validator, i) =>
-                                            <tr key={validator.index}>
-                                                <td>{beaconchainUrl("/validator/" + validator.validator.pubkey, <FontAwesomeIcon className="icon" icon={faSatelliteDish} />)}</td>
-                                                <td>{beaconchainUrl("/validator/" + validator.validator.pubkey, abbreviatePublicKey(validator.validator.pubkey))}</td>
+                                        {validatorData.sort((v1, v2) => parseInt(v1.index) - parseInt(v2.index)).map((validator, i) =>
+                                            <tr key={`validator-${i}`}>
+                                                <td>
+                                                    {beaconchainUrl("/validator/" + validator.validator.pubkey, <span className="icon has-text-info"><FontAwesomeIcon className="icon" icon={faSatelliteDish} /></span>)}
+                                                    <RocketPoolLink api={api} validator={validator} network={settings.network} />
+                                                </td>
                                                 <td>{beaconchainUrl("/validator/" + validator.validator.pubkey, validator.index)}</td>
+                                                <td>{beaconchainUrl("/validator/" + validator.validator.pubkey, abbreviatePublicKey(validator.validator.pubkey))}</td>
                                                 <td>{(parseFloat(validator.balance) / 1000000000.0).toFixed(4)}</td>
                                                 <td>{(parseFloat(validator.validator.effective_balance) / 1000000000.0).toFixed(4)}</td>
                                                 {/* <td>{validator.validator.activation_epoch}</td> */}
                                                 {/* <td>{validator.validator.exit_epoch}</td> */}
                                                 <td>
                                                     {/* eslint-disable-next-line */}
-                                                    <a className="link" onClick={() => { if (!readonly) configureFeeRecipient(validator.validator.pubkey, feeRecipients[i]) }}>
-                                                        {abbreviatePublicKey(feeRecipients[i])}
+                                                    <a className="link" onClick={() => { if (!readonly) configureFeeRecipient(validator.validator.pubkey, getFeeRecipient(feeRecipients, validator.validator.pubkey)) }}>
+                                                        {abbreviatePublicKey(getFeeRecipient(feeRecipients, validator.validator.pubkey))}
                                                     </a>
                                                 </td>
+                                                <td>{withdrawalTag(validator)}</td>
                                                 <td><span className={"tag " + getStatusColor(validator.status)}>{validator.status}</span></td>
-                                                {!readonly && (<td><button className="button is-text has-text-grey-light" onClick={() => askConfirmationRemoveValidator(validator.validator.pubkey)}><FontAwesomeIcon className="icon" icon={faTrash} /></button></td>)}
+                                                {!readonly && (
+                                                    <td>
+                                                        <button className="button is-text has-text-grey-light" name="delete" onClick={() => askConfirmationRemoveValidator(validator.validator.pubkey)}><FontAwesomeIcon className="icon" icon={faTrash} /></button>
+                                                        {canExit(validator) && (
+                                                            <ExitValidatorModal validator={validator} api={api} updateValidators={updateValidators} network={settings.network} />
+                                                        )}
+                                                    </td>
+                                                )}
+
                                             </tr>
                                         )}
                                     </tbody>
                                 </table>
                             </>
                         )}
-                        {validators && !readonly && (<AddValidator updateValidators={updateValidators} keyManagerAPI={keyManagerAPI} />)}
+                        {validators && !readonly && (<AddValidator updateValidators={updateValidators} api={api} />)}
                     </div>
                 </div>
             </div>

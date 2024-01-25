@@ -28,6 +28,9 @@ case ${NETWORK} in
   "prater")
     P2P_PORT=9003
     ;;
+  "holesky")
+    P2P_PORT=9008
+    ;;
   *)
     P2P_PORT=9000
     ;;

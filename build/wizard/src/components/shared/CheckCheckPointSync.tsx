@@ -5,15 +5,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faCircleXmark, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 
-const debug = false;
-
 interface Props {
-    restApi: RestApi | undefined | null
+    api: RestApi | undefined | null
     network: Network
     packageUrl: String
 }
 
-const CheckCheckPointSync = ({ restApi, network, packageUrl }: Props) => {
+const CheckCheckPointSync = ({ api, network, packageUrl }: Props) => {
 
     type responseType = {
         "data": {
@@ -33,10 +31,6 @@ const CheckCheckPointSync = ({ restApi, network, packageUrl }: Props) => {
         "execution_optimistic": boolean
     }
 
-    const monitorAPI = () => {
-        return (debug ? "http://localhost:9999" : `http://${packageUrl}:9999`)
-    }
-
     type tableDateType = {
         url: string
         state_root: string
@@ -47,14 +41,14 @@ const CheckCheckPointSync = ({ restApi, network, packageUrl }: Props) => {
 
     // Get finalized state
     React.useEffect(() => {
-        if (restApi)
-            getFinalizedState(restApi);
-    }, [restApi]);
+        if (api)
+            getFinalizedState(api);
+    }, [api]);
 
-    const getFinalizedState = async (restApi: RestApi) => {
-        if (!restApi)
+    const getFinalizedState = async (api: RestApi) => {
+        if (!api)
             return;
-        restApi.get("/eth/v1/beacon/headers/finalized", res => {
+        api.get("/rest/eth/v1/beacon/headers/finalized", res => {
             if (res.status === 200) {
                 setFinalizedState(res.data)
             }
@@ -88,13 +82,14 @@ const CheckCheckPointSync = ({ restApi, network, packageUrl }: Props) => {
                         // "mainnet.checkpoint.sigp.io"
                     ]
 
+
             const fetchFromCheckpointzEndPoint = async (endpoint: string): Promise<tableDateType> => {
-                const url = monitorAPI() + `/${endpoint}/checkpointz/v1/beacon/slots/${slot}`
+                const url = api?.baseUrl + `/${endpoint}/checkpointz/v1/beacon/slots/${slot}`
                 console.log(url)
                 return {
                     url: `https://${endpoint}`, state_root: await axios.get(url)
                         .then(res => network === "gnosis" ?
-                            res.data.block.Altair.message.state_root
+                    res.data.block.Altair.message.state_root
                             : res.data.block.Bellatrix.message.state_root)
                         .catch(error => "could not fetch, check manually")
                 }
@@ -108,7 +103,7 @@ const CheckCheckPointSync = ({ restApi, network, packageUrl }: Props) => {
                     "mainnet": "beaconcha.in"
                 })[network]
 
-                const url = monitorAPI() + `/${base_url}/api/v1/block/${slot}`
+                const url = api?.baseUrl + `/${base_url}/api/v1/block/${slot}`
                 console.log(url)
                 return {
                     url: `https://${base_url}/slot/${slot}`, state_root: await axios.get(url)
@@ -122,17 +117,17 @@ const CheckCheckPointSync = ({ restApi, network, packageUrl }: Props) => {
                     .concat(fetchFromBeaconChain())
             ).then(values => setOtherStateRoots(values))
         }
-    }, [finalizedState]);
+    }, [finalizedState, packageUrl, network, api]);
 
     const refresh = () => {
-        if (restApi) {
-            getFinalizedState(restApi);
+        if (api) {
+            getFinalizedState(api);
         }
     }
 
     return (
         <>
-            {restApi && (
+            {api && (
                 <div>
                     <div className="container has-text-centered ">
                         <div className="columns is-vcentered">

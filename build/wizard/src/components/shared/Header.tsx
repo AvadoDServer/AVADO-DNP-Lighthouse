@@ -2,12 +2,14 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSpinner, faBook } from "@fortawesome/free-solid-svg-icons";
 import { RestApi } from "./RestApi";
-import {logo} from "../Logo"
+import { logo } from "../Logo"
+import { Network } from "./Types";
 interface Props {
-    restApi: RestApi | undefined | null
+    api: RestApi | undefined | null
     title: string
     tagline: string
     wikilink: string
+    network: Network
 }
 
 interface SyncData {
@@ -24,7 +26,7 @@ interface Peer {
 
 enum Health { ready, syncing, not_ready }
 
-const Comp = ({ restApi, logo, title, tagline, wikilink }: Props) => {
+const Comp = ({ api, title, tagline, wikilink, network }: Props) => {
     const [syncData, setSyncData] = React.useState<SyncData | null>(null);
     const [error, setError] = React.useState<String | null>(null);
     const [peerCount, setPeerCount] = React.useState<number>(0);
@@ -34,9 +36,9 @@ const Comp = ({ restApi, logo, title, tagline, wikilink }: Props) => {
 
     React.useEffect(() => {
         const updateHealth = async () => {
-            if (!restApi)
+            if (!api)
                 return;
-            restApi.get("/eth/v1/node/health", res => {
+            api.get("/rest/eth/v1/node/health", res => {
                 if (res.status === 200) {
                     setHealth(Health.ready)
                 } else if (res.status === 206) {
@@ -54,11 +56,11 @@ const Comp = ({ restApi, logo, title, tagline, wikilink }: Props) => {
             updateHealth();
         }, 5 * 1000); // 5 seconds refresh
         return () => clearInterval(interval);
-    }, [restApi]);
+    }, [api]);
 
     React.useEffect(() => {
         const callAPI = (path: string, setter: (res: any) => void) => {
-            restApi?.get(path, res => {
+            api?.get(path, res => {
                 setter(res)
             }, (e) => {
                 //ignore
@@ -67,16 +69,16 @@ const Comp = ({ restApi, logo, title, tagline, wikilink }: Props) => {
 
         const updateStats = () => {
             // console.log("health:", Health[health])
-            if (health !== Health.not_ready && restApi) {
-                callAPI("/eth/v1/node/syncing", res => { if (res.status === 200) setSyncData(res.data.data) })
-                callAPI("/eth/v1/node/peer_count", res => { if (res.status === 200) setPeerCount(res.data.data.connected) })
-                callAPI("/eth/v1/node/peers", res => { if (res.status === 200) setPeers(res.data.data) })
+            if (health !== Health.not_ready && api) {
+                callAPI("/rest/eth/v1/node/syncing", res => { if (res.status === 200) setSyncData(res.data.data) })
+                callAPI("/rest/eth/v1/node/peer_count", res => { if (res.status === 200) setPeerCount(res.data.data.connected) })
+                callAPI("/rest/eth/v1/node/peers", res => { if (res.status === 200) setPeers(res.data.data) })
             }
         }
 
         const getVersion = () => {
-            if (health !== Health.not_ready && restApi) {
-                callAPI("/eth/v1/node/version", res => {
+            if (health !== Health.not_ready && api) {
+                callAPI("/rest/eth/v1/node/version", res => {
                     if (res.status === 200) {
                         const rawversion = res.data.data.version
                         const version = rawversion.replace(/.*\/(v[\d.]+).*/, "$1")
@@ -92,7 +94,7 @@ const Comp = ({ restApi, logo, title, tagline, wikilink }: Props) => {
             updateStats();
         }, 5 * 1000); // 5 seconds refresh
         return () => clearInterval(interval);
-    }, [health, restApi]);
+    }, [health, api]);
 
     React.useEffect(() => {
         if (health === Health.not_ready)
@@ -107,6 +109,8 @@ const Comp = ({ restApi, logo, title, tagline, wikilink }: Props) => {
         const total = headSlot + parseFloat(syncData.sync_distance)
         return (Math.floor(headSlot * 100.0 * 100.0 / total) / 100.0).toFixed(2) + "%" // round down to two decimal places
     }
+
+    const slots_per_epoch = network === "gnosis" ? 16 : 32
 
     return (
         <div>
@@ -131,7 +135,7 @@ const Comp = ({ restApi, logo, title, tagline, wikilink }: Props) => {
                                     <span className="tag is-danger">{error}<FontAwesomeIcon className="fa-spin" icon={faSpinner} /></span>
                                 ) : (syncData && peerCount &&
                                     <>
-                                        status: {(syncData.is_syncing === false && peerCount > 0
+                                        status: {(syncData.is_syncing === false && (peerCount > 0)
                                         ) ? (<span className="tag is-success">in sync</span>
                                         ) : (<><span className="tag is-warning">syncing {getSyncPercentage(syncData)}</span>, sync distance: {syncData.sync_distance}</>
                                         )}
@@ -144,7 +148,7 @@ const Comp = ({ restApi, logo, title, tagline, wikilink }: Props) => {
                                         )}
 
                                         <br />
-                                        epoch: {Math.floor(parseFloat(syncData.head_slot) / 32.0)}, slot {syncData.head_slot}
+                                        epoch: {Math.floor(parseFloat(syncData.head_slot) / slots_per_epoch)}, slot {syncData.head_slot}
                                     </>
                                 )}
                         </p>
