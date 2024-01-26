@@ -7,8 +7,8 @@ SUBCOMMAND=$2
 echo "Starting Lighthouse ${SUBCOMMAND}"
 
 if [ ! -f "${SETTINGSFILE}" ]; then
-    echo "Starting with default settings"
-    cp /opt/lighthouse/defaultsettings.json ${SETTINGSFILE}
+  echo "Starting with default settings"
+  cp /opt/lighthouse/defaultsettings.json ${SETTINGSFILE}
 fi
 
 NETWORK=$(cat ${SETTINGSFILE} | jq '."network"' | tr -d '"')
@@ -22,18 +22,18 @@ until $(curl --silent --fail "http://dappmanager.my.ava.do/jwttoken.txt" --outpu
 done
 
 case ${NETWORK} in
-  "gnosis")
-    P2P_PORT=9006
-    ;;
-  "prater")
-    P2P_PORT=9003
-    ;;
-  "holesky")
-    P2P_PORT=9008
-    ;;
-  *)
-    P2P_PORT=9000
-    ;;
+"gnosis")
+  P2P_PORT=9011
+  ;;
+"prater")
+  P2P_PORT=9003
+  ;;
+"holesky")
+  P2P_PORT=9008
+  ;;
+*)
+  P2P_PORT=9000
+  ;;
 esac
 
 # Create config file
@@ -49,8 +49,8 @@ VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT=$(cat ${SETTINGSFILE} | jq -r '."valid
 MEV_BOOST_ENABLED=$(cat ${SETTINGSFILE} | jq -r '."mev_boost" // empty')
 
 case ${SUBCOMMAND} in
-  "beacon_node" | "bn" | "b" | "beacon")
-    exec /usr/local/bin/lighthouse \
+"beacon_node" | "bn" | "b" | "beacon")
+  exec /usr/local/bin/lighthouse \
     --datadir=${DATA_PATH} \
     ${SUBCOMMAND} \
     --network="${NETWORK}" \
@@ -65,9 +65,9 @@ case ${SUBCOMMAND} in
     ${DISCOVERY_BOOTNODES:+--p2p-discovery-bootnodes=${DISCOVERY_BOOTNODES}} \
     --graffiti="${GRAFFITI}" \
     ${EXTRA_OPTS_BEACON_NODE}
-    ;;
-  "validator_client" | "v" | "vc" | "validator")
-    exec /usr/local/bin/lighthouse \
+  ;;
+"validator_client" | "v" | "vc" | "validator")
+  exec /usr/local/bin/lighthouse \
     --datadir=${DATA_PATH} \
     ${SUBCOMMAND} \
     --network="${NETWORK}" \
@@ -76,8 +76,8 @@ case ${SUBCOMMAND} in
     ${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT:+--suggested-fee-recipient=${VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT}} \
     --graffiti="${GRAFFITI}" \
     ${EXTRA_OPTS_VALIDATOR_CLIENT}
-    ;;
-  *)
-    echo "Error in config files"
-    ;;
+  ;;
+*)
+  echo "Error in config files"
+  ;;
 esac

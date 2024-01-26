@@ -4,7 +4,7 @@
   "upstream": "v3.5.1",
   "title": "Lighthouse-Gnosis",
   "description": "An open-source Ethereum consensus client, written in Rust and maintained by Sigma Prime.",
-  "avatar": "/ipfs/QmZc3AiweTGtDywdoN2oXcgMgTzz58iGaAyBNQtp8msHHq",
+  "avatar": "/ipfs/QmXimBvXWsL8xzuNoift9ygFdCHAMoj2e8vDeeMbgpX8gC",
   "type": "service",
   "autoupdate": true,
   "image": {
@@ -12,8 +12,8 @@
       "data:/data"
     ],
     "ports": [
-      "9006:9006/udp",
-      "9006:9006"
+      "9011:9011/udp",
+      "9011:9011"
     ],
     "environment": [
       "EXTRA_OPTS_BEACON_NODE=",

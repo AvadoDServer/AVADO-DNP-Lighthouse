@@ -4,6 +4,7 @@ import nimbus_holesky from "../assets/nimbus-holesky.png";
 import lighthouse_mainnet from "../assets/lighthouse-mainnet.png";
 import lighthouse_prater from "../assets/lighthouse-prater.png";
 import lighthouse_holesky from "../assets/lighthouse-holesky.png";
+import lighthouse_gnosis from "../assets/lighthouse-gnosis.png";
 import teku_mainnet from "../assets/teku-mainnet.png";
 import teku_prater from "../assets/teku-prater.png";
 import teku_holesky from "../assets/teku-holesky.png";
@@ -28,7 +29,7 @@ export const logo = ({
         "prater": lighthouse_prater,
         "mainnet": lighthouse_mainnet,
         "holesky": lighthouse_holesky,
-        "gnosis": undefined
+        "gnosis": lighthouse_gnosis
     }),
     "teku": ({
         "prater": teku_prater,
