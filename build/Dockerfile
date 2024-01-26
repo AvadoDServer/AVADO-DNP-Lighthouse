@@ -19,7 +19,6 @@ ARG NETWORK
 USER root
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install \
     curl \
-    gettext\
     jq \
     nginx \
     nodejs \
@@ -27,7 +26,6 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install \
     sudo \
     supervisor \
     vim-tiny \
-    wget \
     && rm -rf /var/lib/apt/lists/*
 RUN useradd -s /bin/false nginx
 
@@ -51,9 +49,8 @@ COPY --from=builder /usr/src/app/wizard/build /usr/local/wizard
 COPY --from=builder /usr/src/monitor /usr/local/monitor
 
 COPY startLighthouse.sh /opt/lighthouse
-COPY reload-certs.sh /opt/lighthouse/reload-certs.sh
 COPY monitor/settings/defaultsettings-${NETWORK}.json /opt/lighthouse/defaultsettings.json
-RUN chmod a+x /opt/lighthouse/startLighthouse.sh /opt/lighthouse/reload-certs.sh
+RUN chmod a+x /opt/lighthouse/startLighthouse.sh
 COPY supervisord.conf /etc/supervisord.conf
 COPY nginx.conf /etc/nginx/
 
