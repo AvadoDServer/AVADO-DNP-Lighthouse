@@ -11,7 +11,7 @@ case ${NETWORK} in
 esac
 
 yq -o=json eval --inplace '.network = "'${NETWORK}'"' build/wizard/src/server_config.json
-yq -o=json eval --inplace '.network = "'${NETWORK}'"' build/monitor/server_config.json
+yq -o=json eval --inplace '.network = "'${NETWORK}'"' build/server/server_config.json
 
 for file in \
   build/docker-compose.yml \
