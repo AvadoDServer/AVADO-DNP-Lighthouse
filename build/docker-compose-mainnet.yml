@@ -5,7 +5,8 @@ services:
     build:
       context: ./build
       args:
-        VERSION: "v3.5.1"
+        VERSION: v4.6.0
+        NETWORK: mainnet
     volumes:
       - 'data:/data'
     environment:

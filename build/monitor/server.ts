@@ -4,7 +4,10 @@ import axios, { Method, AxiosRequestHeaders } from "axios";
 import * as fs from 'fs';
 import { SupervisorCtl } from "./SupervisorCtl";
 import { server_config } from "./server_config";
-import defaultsettings from "./settings/defaultsettings.json";
+import defaultsettings_gnosis from "./settings/defaultsettings-gnosis.json";
+import defaultsettings_holesky from "./settings/defaultsettings-holesky.json";
+import defaultsettings_mainnet from "./settings/defaultsettings-mainnet.json";
+import defaultsettings_prater from "./settings/defaultsettings-prater.json";
 
 console.log("Monitor starting...");
 
@@ -28,6 +31,15 @@ server.use(restify.plugins.bodyParser());
 
 const settings_file_path = '/data/settings.json';
 
+const defaultsettings = () => {
+    switch (server_config.network) {
+        case "gnosis": return defaultsettings_gnosis;
+        case "holesky": return defaultsettings_holesky;
+        case "prater": return defaultsettings_prater;
+        default: return defaultsettings_mainnet;
+    }
+};
+
 server.get("/ping", (req: restify.Request, res: restify.Response, next: restify.Next) => {
     res.send(200, "pong");
     next()
@@ -46,10 +58,10 @@ server.get("/name", (req: restify.Request, res: restify.Response, next: restify.
 server.get("/settings", (req: restify.Request, res: restify.Response, next: restify.Next) => {
     try {
         const settings = JSON.parse(fs.readFileSync(settings_file_path, 'utf8'))
-        res.send(200, settings ? JSON.stringify(settings) : defaultsettings);
+        res.send(200, settings ? JSON.stringify(settings) : defaultsettings());
         next()
     } catch (err) {
-        res.send(200, defaultsettings);
+        res.send(200, defaultsettings());
         next();
     }
 });
@@ -65,7 +77,7 @@ server.post("/settings", (req: restify.Request, res: restify.Response, next: res
 
 server.get("/defaultsettings", (req: restify.Request, res: restify.Response, next: restify.Next) => {
     try {
-        res.send(200, defaultsettings);
+        res.send(200, defaultsettings());
         next()
     } catch (err) {
         res.send(500, "failed")

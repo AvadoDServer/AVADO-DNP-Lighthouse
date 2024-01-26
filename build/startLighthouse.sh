@@ -26,13 +26,13 @@ case ${NETWORK} in
   P2P_PORT=9011
   ;;
 "prater")
-  P2P_PORT=9003
+  P2P_PORT=9002
   ;;
 "holesky")
-  P2P_PORT=9008
+  P2P_PORT=9003
   ;;
 *)
-  P2P_PORT=9000
+  P2P_PORT=9040
   ;;
 esac
 

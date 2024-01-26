@@ -1,10 +1,10 @@
 {
   "name": "lighthouse-holesky.avado.dnp.dappnode.eth",
-  "version": "0.0.4",
-  "upstream": "v3.5.1",
+  "version": "0.0.1",
+  "upstream": "v4.6.0",
   "title": "Lighthouse Holesky Testnet",
   "description": "An open-source Ethereum consensus client, written in Rust and maintained by Sigma Prime.",
-  "avatar": "/ipfs/QmNkSDpE6ZspaSamcrnsKnvmR3bbQeWQWTUjcbKwUm4AiT",
+  "avatar": "/ipfs/QmTfWJzXCZF9x9sWkok55JMci9mBBfQambku8bvh6Lnwrh",
   "type": "service",
   "autoupdate": true,
   "image": {

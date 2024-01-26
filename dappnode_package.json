@@ -1,10 +1,10 @@
 {
-  "name": "lighthouse-gnosis.avado.dnp.dappnode.eth",
+  "name": "lighthouse.avado.dnp.dappnode.eth",
   "version": "0.0.1",
-  "upstream": "v3.5.1",
-  "title": "Lighthouse-Gnosis",
+  "upstream": "v4.6.0",
+  "title": "Lighthouse",
   "description": "An open-source Ethereum consensus client, written in Rust and maintained by Sigma Prime.",
-  "avatar": "/ipfs/QmXimBvXWsL8xzuNoift9ygFdCHAMoj2e8vDeeMbgpX8gC",
+  "avatar": "/ipfs/QmNkSDpE6ZspaSamcrnsKnvmR3bbQeWQWTUjcbKwUm4AiT",
   "type": "service",
   "autoupdate": true,
   "image": {
@@ -12,8 +12,8 @@
       "data:/data"
     ],
     "ports": [
-      "9011:9011/udp",
-      "9011:9011"
+      "9040:9040/udp",
+      "9040:9040"
     ],
     "environment": [
       "EXTRA_OPTS_BEACON_NODE=",
@@ -26,12 +26,12 @@
   "dependencies": {},
   "ui": {
     "OnboardingWizard": {
-      "url": "http://lighthouse-gnosis.my.ava.do",
+      "url": "http://lighthouse.my.ava.do",
       "external": true
     }
   },
   "links": {
-    "OnboardingWizard": "http://lighthouse-gnosis.my.ava.do",
+    "OnboardingWizard": "http://lighthouse.my.ava.do",
     "HomePage": "https://lighthouse-book.sigmaprime.io/"
   }
 }

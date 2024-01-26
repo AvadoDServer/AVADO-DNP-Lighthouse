@@ -6,6 +6,7 @@ services:
       context: ./build
       args:
         VERSION: v4.6.0
+        NETWORK: gnosis
     volumes:
       - 'data:/data'
     environment:

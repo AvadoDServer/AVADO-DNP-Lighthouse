@@ -1,10 +1,10 @@
 {
   "name": "lighthouse.avado.dnp.dappnode.eth",
   "version": "0.0.1",
-  "upstream": "v3.5.1",
+  "upstream": "v4.6.0",
   "title": "Lighthouse",
   "description": "An open-source Ethereum consensus client, written in Rust and maintained by Sigma Prime.",
-  "avatar": "/ipfs/QmRWDGukXyvk4WbJ9dexqE13vSb1jQeTKKFmLnZVq3PT1X",
+  "avatar": "/ipfs/QmNkSDpE6ZspaSamcrnsKnvmR3bbQeWQWTUjcbKwUm4AiT",
   "type": "service",
   "autoupdate": true,
   "image": {
@@ -12,8 +12,8 @@
       "data:/data"
     ],
     "ports": [
-      "9000:9000/udp",
-      "9000:9000"
+      "9040:9040/udp",
+      "9040:9040"
     ],
     "environment": [
       "EXTRA_OPTS_BEACON_NODE=",

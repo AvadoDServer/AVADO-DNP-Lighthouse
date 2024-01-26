@@ -16,9 +16,7 @@ yq -o=json eval --inplace '.network = "'${NETWORK}'"' build/monitor/server_confi
 for file in \
   build/docker-compose.yml \
   dappnode_package.json \
-  build/monitor/settings/defaultsettings.json \
-  build/avatar.png \
-  build/wizard/src/assets/lighthouse.png; do
+  build/avatar.png; do
   BASENAME=${file%.*}
   EXT=${file##*.}
   # echo $BASENAME

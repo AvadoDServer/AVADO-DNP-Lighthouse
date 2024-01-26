@@ -5,7 +5,8 @@ services:
     build:
       context: ./build
       args:
-        VERSION: "v4.6.0"
+        VERSION: v4.6.0
+        NETWORK: prater
     volumes:
       - 'data:/data'
     environment:
