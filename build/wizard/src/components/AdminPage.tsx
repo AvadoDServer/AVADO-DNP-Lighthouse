@@ -54,7 +54,7 @@ const Comp = ({ api, dappManagerHelper }: Props) => {
                 {status && (
                     <ul>
                         {status.map((program) =>
-                            <li>
+                            <li key={program.name}>
                                 <b>{program.name}</b>: {program.statename}
                             </li>
                         )}

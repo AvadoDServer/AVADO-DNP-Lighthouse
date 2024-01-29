@@ -6,6 +6,6 @@
     "p2p_peer_lower_bound": 64,
     "p2p_peer_upper_bound": 100,
     "validators_proposer_default_fee_recipient": "",
-    "initial_state": "https://checkpoint.gnosischain.com",
+    "initial_state": "https://checkpoint.gnosischain.com/eth/v2/debug/beacon/states/finalized",
     "mev_boost": false
 }
