@@ -51,15 +51,9 @@ router.get('/defaultsettings', (context) => {
 
 const supervisorCtl = new SupervisorCtl(`localhost`, 5555, '/RPC2')
 const restart = async () => {
-    await Promise.all([
-        supervisorCtl.callMethod('supervisor.stopProcess', ["lighthouse-vc", true]),
-        supervisorCtl.callMethod('supervisor.stopProcess', ["lighthouse-bn", true])
-    ])
+    await Promise.all(server_config.supervisord_programs.map(name => supervisorCtl.callMethod('supervisor.stopProcess', [name, true])))
     await new Promise(f => setTimeout(f, 3000)); //wait 3 seconds
-    return Promise.all([
-        supervisorCtl.callMethod('supervisor.startProcess', ["lighthouse-bn", true]),
-        supervisorCtl.callMethod('supervisor.startProcess', ["lighthouse-vc", true])
-    ])
+    await Promise.all(server_config.supervisord_programs.map(name => supervisorCtl.callMethod('supervisor.startProcess', [name, true])))
 }
 
 router.post('/service/restart', async (context: Context) => {
@@ -77,10 +71,7 @@ router.post('/service/stop', async (context: Context) => {
     const method = 'supervisor.stopProcess'
 
     try {
-        await Promise.all([
-            supervisorCtl.callMethod(method, ["lighthouse-bn"]),
-            supervisorCtl.callMethod(method, ["lighthouse-vc"])
-        ]);
+        await Promise.all(server_config.supervisord_programs.map(name => supervisorCtl.callMethod(method, [name, true])))
         context.response.body = "stopped";
     } catch (err) {
         console.error("Error restarting: ", err)
@@ -92,10 +83,7 @@ router.post('/service/stop', async (context: Context) => {
 router.post('/service/start', async (context: Context) => {
     const method = 'supervisor.startProcess'
     try {
-        await Promise.all([
-            supervisorCtl.callMethod(method, ["lighthouse-bn"]),
-            supervisorCtl.callMethod(method, ["lighthouse-vc"])
-        ]);
+        await Promise.all(server_config.supervisord_programs.map(name => supervisorCtl.callMethod(method, [name, true])))
         context.response.body = "started";
     } catch (err) {
         console.error("Error restarting: ", err)
@@ -142,7 +130,8 @@ router.get("/:endpoint/api/v1/block/:slot", async (context: any) => {
 // Beacon chain rest API   //
 /////////////////////////////
 
-router.get("/rest/:path(.*)", processRestApi);
+router.get("/rest/:path(.*)", processRestApi)
+    .post("/rest/:path(.*)", processRestApi);
 
 async function processRestApi(ctx: any) {
     const path = ctx.params.path;
@@ -174,10 +163,13 @@ router
 
 async function proxyRequest(url: string, headers: Headers, ctx: any) {
     try {
+        const body = ctx.request.hasBody ? JSON.stringify(JSON.parse(await ctx.request.body.text())) : null
+        // console.dir(body);
+
         const response = await fetch(url, {
             method: ctx.request.method,
             headers,
-            body: ctx.request.hasBody ? JSON.stringify(await ctx.request.body().value) : null
+            body
         });
 
         ctx.response.status = response.status;

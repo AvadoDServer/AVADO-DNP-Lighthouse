@@ -1,4 +1,8 @@
 {
   "network": "holesky",
-  "name": "lighthouse"
+  "name": "lighthouse",
+  "supervisord_programs": [
+    "lighthouse-bn",
+    "lighthouse-vc"
+  ]
 }
