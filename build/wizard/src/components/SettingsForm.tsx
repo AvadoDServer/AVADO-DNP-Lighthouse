@@ -34,17 +34,17 @@ const Comp = ({ name, settings, defaultSettings, applySettingsChanges, installed
 
     const execution_engines: execution_engine[] = useMemo(() => [
         {
-            name: "Geth Mainnet",
+            name: "Geth",
             packagename: "ethchain-geth.public.dappnode.eth",
             ee_endpoint: "http://ethchain-geth.my.ava.do:8551",
             network: "mainnet"
         }, {
-            name: "Geth Goerli Testnet",
+            name: "Geth-Goerli",
             packagename: "goerli-geth.avado.dnp.dappnode.eth",
             ee_endpoint: "http://goerli-geth.my.ava.do:8551",
             network: "prater"
         }, {
-            name: "Geth Holesky Testnet",
+            name: "Geth-Holesky",
             packagename: "holesky-geth.avado.dnp.dappnode.eth",
             ee_endpoint: "http://holesky-geth.my.ava.do:8551",
             network: "holesky"
@@ -54,15 +54,25 @@ const Comp = ({ name, settings, defaultSettings, applySettingsChanges, installed
             ee_endpoint: "http://avado-dnp-nethermind.my.ava.do:8551",
             network: "mainnet"
         }, {
-            name: "Nethermind-goerli",
+            name: "Nethermind-Goerli",
             packagename: "nethermind-goerli.avado.dnp.dappnode.eth",
             ee_endpoint: "http://nethermind-goerli.my.ava.do:8551",
             network: "prater"
         }, {
-            name: "Nethermind-gnosis",
+            name: "Nethermind-Gnosis",
             packagename: "nethermind-gnosis.avado.dnp.dappnode.eth",
             ee_endpoint: "http://nethermind-gnosis.my.ava.do:8551",
             network: "gnosis"
+        }, {
+            name: "Reth-Holesky",
+            packagename: "reth-holesky.avado.dnp.dappnode.eth",
+            ee_endpoint: "http://reth-holesky.my.ava.do:8551",
+            network: "holesky"
+        }, {
+            name: "Reth",
+            packagename: "reth-mainnet.avado.dnp.dappnode.eth",
+            ee_endpoint: "http://reth-mainnet.my.ava.do:8551",
+            network: "mainnet"
         }
     ], [])
 
