@@ -1,5 +1,5 @@
 {
-  "network": "holesky",
+  "network": "gnosis",
   "name": "lighthouse",
   "supervisord_programs": [
     "lighthouse-bn",

@@ -1,11 +1,11 @@
 version: '3.4'
 services:
   lighthouse-gnosis.avado.dnp.dappnode.eth:
-    image: 'lighthouse-gnosis.avado.dnp.dappnode.eth:0.0.1'
+    image: 'lighthouse-gnosis.avado.dnp.dappnode.eth:0.0.2'
     build:
       context: ./build
       args:
-        VERSION: v4.6.0
+        VERSION: v5.0.0
         NETWORK: gnosis
     volumes:
       - 'data:/data'
