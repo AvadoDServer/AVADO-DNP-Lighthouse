@@ -1,11 +1,11 @@
 version: '3.4'
 services:
   lighthouse-holesky.avado.dnp.dappnode.eth:
-    image: 'lighthouse-holesky.avado.dnp.dappnode.eth:0.0.1'
+    image: 'lighthouse-holesky.avado.dnp.dappnode.eth:0.0.3'
     build:
       context: ./build
       args:
-        VERSION: v4.6.0
+        VERSION: v5.0.0
         NETWORK: holesky
     volumes:
       - 'data:/data'
